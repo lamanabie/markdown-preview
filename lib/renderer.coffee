@@ -63,6 +63,7 @@ exports.toHtml = (text='', filePath, grammar, callback) ->
   # Remove the <!doctype> since otherwise marked will escape it
   # https://github.com/chjj/marked/issues/354
   text = text.replace(/^\s*<!doctype(\s+.*)?>\s*/i, '')
+  text = exports.footnote text
 
   roaster text, options, (error, html) =>
     return callback(error) if error
