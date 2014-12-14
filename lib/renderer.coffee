@@ -11,6 +11,49 @@ highlighter = null
 {resourcePath} = atom.getLoadSettings()
 packagePath = path.dirname(__dirname)
 
+exports.footnote = (text) ->
+  createFootnote = (text) ->
+    text.replace /\[\^(.+?)\]/g, (wholeMatch, m1) ->
+      if (fn[m1] == undefined)
+        return ''
+      return '<sup><a href="#fn:'+ fn[m1]['key']+'" name="fnref:' + fn[m1]['key'] + '" id="fnref:'+fn[m1]['key']+'" title="See footnote" class="footnote">'+fn[m1]['position']+'</a></sup>'
+
+  fn = []
+  count = 0
+  text = text.replace /\[\^(.+?)\]:(.+?)[\r\n]+((\s+)(.+?)[\r\n]+)*/gm, (wholeMatch, m1) ->
+    paragraphs = (wholeMatch.replace /\[\^(.+?)\]:/, '').split "\n"
+
+    fn[m1] = []
+    fn[m1]['key'] = m1.toLowerCase().replace(/[^a-zA-Z0-9]+/g,'-')
+    fn[m1]['text'] = []
+    for property of paragraphs
+      if paragraphs[property].trim().length > 0
+        fn[m1]['text'].push paragraphs[property].trim()
+
+    fn[m1]['position'] = ++count
+    return ""
+
+  text = createFootnote text
+
+  text += """
+  <div class="footnotes">
+    <hr>
+      <ol>"""
+
+  for property of fn
+    text += '<li id="fn:' + fn[property]['key'] + '">'
+    i = 0
+    while i < fn[property]['text'].length
+      p = createFootnote fn[property]['text'][i]
+
+      text += '<p style="margin: 0;padding: 0;">' + p + '</p>'
+      i++
+    text += ' <a href="#fnref:' + fn[property]['key'] + '" title="Return to article" class="reversenote">&larr;</a></li>'
+
+  text += """</ol>
+    </div>"""
+  text
+
 exports.toHtml = (text='', filePath, grammar, callback) ->
   roaster ?= require 'roaster'
   options =
