@@ -16,11 +16,11 @@ exports.footnote = (text) ->
     text.replace /\[\^(.+?)\]/g, (wholeMatch, m1) ->
       if (fn[m1] == undefined)
         return ''
-      return '<sup><a href="#fn:'+ fn[m1]['key']+'" name="fnref:' + fn[m1]['key'] + '" id="fnref:'+fn[m1]['key']+'" title="See footnote" class="footnote">'+fn[m1]['position']+'</a></sup>'
+      return '<sup><a href="#fn:'+ fn[m1]['key']+'" id="fnref:'+fn[m1]['key']+'" title="See footnote" class="footnote">'+fn[m1]['position']+'</a></sup>'
 
   fn = []
   count = 0
-  text = text.replace /\[\^(.+?)\]:(.+?)[\r\n]+((\s+)(.+?)[\r\n]+)*/gm, (wholeMatch, m1) ->
+  text = text.replace /\[\^(.+?)\]:(.+?)[\r\n]+((\s+)(.+?)[\r\n]+)*/gm, (wholeMatch, m1, m2, m3, m4) ->
     paragraphs = (wholeMatch.replace /\[\^(.+?)\]:/, '').split "\n"
 
     fn[m1] = []
@@ -29,6 +29,7 @@ exports.footnote = (text) ->
     for property of paragraphs
       if paragraphs[property].trim().length > 0
         fn[m1]['text'].push paragraphs[property].trim()
+
 
     fn[m1]['position'] = ++count
     return ""
